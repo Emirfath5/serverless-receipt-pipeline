@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Receipt Platform - Lambda + HTTP API + DynamoDB
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 15
+    MemorySize: 128
+    Tracing: Active
+
+Resources:
+  ReceiptsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Receipts
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: receipt_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: receipt_id
+          KeyType: HASH
+
+  ReceiptProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: receipt-processor
+      CodeUri: src/receipt_processor/
+      Handler: app.handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ReceiptsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ReceiptsTable
+      Events:
+        HttpPostReceipts:
+          Type: HttpApi
+          Properties:
+            Path: /receipts
+            Method: POST
+
+Outputs:
+  HttpApiUrl:
+    Description: HTTP API endpoint
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  ReceiptsTableName:
+    Value: !Ref ReceiptsTable
