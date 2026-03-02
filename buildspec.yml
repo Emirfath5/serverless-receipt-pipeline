@@ -9,10 +9,10 @@ phases:
       - pip install aws-sam-cli
   build:
     commands:
-      - sam build
+      - sam build -t template.yaml
   post_build:
     commands:
-      - sam deploy --stack-name receipt-platform-dev --capabilities CAPABILITY_IAM --resolve-s3 --no-fail-on-empty-changeset
+      - sam deploy -t template.yaml --stack-name receipt-platform-dev --capabilities CAPABILITY_IAM --resolve-s3 --no-fail-on-empty-changeset
 
 artifacts:
   files:
