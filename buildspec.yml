@@ -1,8 +1,19 @@
+version: 0.2
+
 phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - pip install --upgrade pip
+      - pip install aws-sam-cli
   build:
     commands:
-      - ls -la
       - sam build -t template.yaml
   post_build:
     commands:
-      - sam deploy --region us-east-2 -t template.yaml --stack-name receipt-platform-dev --capabilities CAPABILITY_IAM --resolve-s3 --no-fail-on-empty-changeset
+      - sam deploy -t template.yaml --stack-name receipt-platform-dev --capabilities CAPABILITY_IAM --resolve-s3 --no-fail-on-empty-changeset
+
+artifacts:
+  files:
+    - template.yaml
